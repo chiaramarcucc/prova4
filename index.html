@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Gioco di prova</title>
+  <style>
+    body {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+      background-color: #f0f0f0;
+    }
+    #game-container {
+      text-align: center;
+    }
+    button {
+      padding: 10px 20px;
+      font-size: 16px;
+    }
+  </style>
+</head>
+<body>
+  <div id="game-container">
+    <h1>Gioco di prova</h1>
+    <p>Premi il pulsante per iniziare!</p>
+    <button id="start-button">Inizia</button>
+    <p id="message"></p>
+  </div>
+
+  <script>
+    const startButton = document.getElementById('start-button');
+    const message = document.getElementById('message');
+
+    startButton.addEventListener('click', () => {
+      message.textContent = 'Il gioco è iniziato!';
+    });
+  </script>
+</body>
+</html>
