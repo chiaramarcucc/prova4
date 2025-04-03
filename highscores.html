@@ -1,37 +1,16 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Classifica</title>
-</head>
-<body>
-    <h1>Classifica</h1>
-    <table id="highscores">
-        <thead>
-            <tr>
-                <th>Posizione</th>
-                <th>Nome</th>
-                <th>Punteggio</th>
-            </tr>
-        </thead>
-        <tbody>
-        </tbody>
-    </table>
-    <script>
-        fetch('highscores.json')
-            .then(response => response.json())
-            .then(highScores => {
-                const tableBody = document.querySelector('#highscores tbody');
-                highScores.forEach((score, index) => {
-                    const row = document.createElement('tr');
-                    row.innerHTML = `
-                        <td>${index + 1}</td>
-                        <td>${score.user.first_name}</td>
-                        <td>${score.score}</td>
-                    `;
-                    tableBody.appendChild(row);
-                });
-            })
-            .catch(error => console.error('Errore nel caricamento di highscores.json:', error));
-    </script>
-</body>
-</html>
+<script>
+    fetch('highscores.json')
+        .then((response) => response.json())
+        .then((highScores) => {
+            const tableBody = document.querySelector('#highscores tbody');
+            highScores.forEach((score, index) => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${index + 1}</td>
+                    <td>${score.playerName}</td>
+                    <td>${score.score}</td>
+                `;
+                tableBody.appendChild(row);
+            });
+        });
+</script>
