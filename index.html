@@ -169,26 +169,30 @@
             }, 1000);
         }
 
-        function endGame() {
-            document.getElementById("game-container").style.display = "none";
-            document.getElementById("feedback").textContent = `⏳ Tempo scaduto! Punteggio finale: ${score} `;
-            let userId = window.Telegram.WebApp.initDataUnsafe.user.id;
-            sendScore(score, userId);
-        }
+    let playerName = prompt('Inserisci il tuo nome:');
 
-        function sendScore(score, userId) {
-            if (window.Telegram && window.Telegram.WebApp) {
-                TelegramGameProxy.postScore(score, function(success) {
-                    if (success) {
-                        console.log('Punteggio inviato con successo!');
-                    } else {
-                        console.error('Errore durante l\'invio del punteggio.');
-                    }
-                }, userId);
-            } else {
-                console.log("Il gioco non è in esecuzione su Telegram WebApp.");
-            }
-        }
+    function sendScore(score, playerName) {
+        fetch('/saveScore', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ score: score, playerName: playerName }),
+        })
+            .then((response) => response.json())
+            .then((data) => {
+                console.log('Punteggio salvato:', data);
+            })
+            .catch((error) => {
+                console.error('Errore durante il salvataggio del punteggio:', error);
+            });
+    }
+
+    function endGame() {
+        document.getElementById('game-container').style.display = 'none';
+        document.getElementById('feedback').textContent = `⏳ Tempo scaduto! Punteggio finale: ${score} `;
+        sendScore(score, playerName);
+    }
 
         startGame(); // Avvia il gioco automaticamente
     </script>
