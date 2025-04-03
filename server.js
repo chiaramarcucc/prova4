@@ -1,28 +1,55 @@
 const http = require('http');
-const TelegramBot = require('node-telegram-bot-api');
 const fs = require('fs');
-const token = '8158288075:AAEUE8qkNuDCEMSrWgNFfXQ0s14Qs30WKjo'; // Sostituisci con il tuo token
 const port = process.env.PORT || 3000;
 
-const bot = new TelegramBot(token, { polling: true });
+let highScores = [];
 
-function saveHighScores(highScores) {
+try {
+    const data = fs.readFileSync('highscores.json');
+    highScores = JSON.parse(data);
+} catch (err) {
+    console.error('Errore durante la lettura del file highscores.json:', err);
+}
+
+function saveHighScores() {
     fs.writeFileSync('highscores.json', JSON.stringify(highScores));
 }
 
-bot.on('message', (msg) => {
-    const chatId = msg.chat.id;
-    if (msg.text === '/highscore') {
-        bot.getGameHighScores(chatId, undefined, 'Prova1', (error, highScores) => {
-            if (error) {
-                console.error(error);
-                bot.sendMessage(chatId, 'Errore durante il recupero della classifica.');
+const server = http.createServer((req, res) => {
+    if (req.url === '/saveScore' && req.method === 'POST') {
+        let body = '';
+        req.on('data', (chunk) => {
+            body += chunk;
+        });
+        req.on('end', () => {
+            try {
+                const data = JSON.parse(body);
+                highScores.push({ score: data.score, playerName: data.playerName });
+                highScores.sort((a, b) => b.score - a.score);
+                saveHighScores();
+                res.writeHead(200, { 'Content-Type': 'application/json' });
+                res.end(JSON.stringify({ message: 'Punteggio salvato con successo!' }));
+            } catch (err) {
+                console.error('Errore durante l\'analisi del JSON:', err);
+                res.writeHead(400, { 'Content-Type': 'application/json' });
+                res.end(JSON.stringify({ error: 'Dati non validi' }));
+            }
+        });
+    } else {
+        // Serve file statici
+        const filePath = '.' + req.url;
+        fs.readFile(filePath, (err, data) => {
+            if (err) {
+                res.writeHead(404);
+                res.end(JSON.stringify(err));
                 return;
             }
-            saveHighScores(highScores);
-            bot.sendMessage(chatId, 'Classifica salvata su highscores.json!');
+            res.writeHead(200);
+            res.end(data);
         });
     }
 });
 
-// ... (aggiungi qui il resto del codice del tuo bot)
+server.listen(port, () => {
+    console.log(`Server in ascolto sulla porta ${port}`);
+});
